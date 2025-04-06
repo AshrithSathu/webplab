@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Technical Implementation Guide
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+This document outlines the technical implementation of a startup networking platform with the following core features:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Authentication System
+- Profile Management
+- Updates Feed
+- Status Management
+- User Directory
+
+## Technology Stack
+
+- Frontend: Next.js 15 with TypeScript and React
+- Backend: Next.js API Routes and Django REST Framework
+- Database: PostgreSQL with Prisma ORM
+- Authentication: JWT (JSON Web Tokens)
+- Styling: Tailwind CSS with Shadcn UI
+
+## Core Features
+
+### 1. Authentication System
+
+- Secure user registration with email and password
+- JWT-based authentication
+- Protected routes for authenticated users
+- Session management using localStorage
+- Automatic redirect to login for unauthenticated users
+
+### 2. Profile Management
+
+- View and edit personal profile
+- Update startup URL
+- View other users' profiles
+- Display startup information
+- Email contact functionality
+
+### 3. Updates Feed
+
+- Post text updates about startup progress
+- View chronological feed of all updates
+- Pagination with "Load More" functionality
+- User attribution for each update
+- Real-time feed updates
+
+### 4. Status Management
+
+- Toggle between "In Office" and "Out of Office" status
+- Personal status management page
+- Central office status dashboard
+- Real-time status updates
+- Status history tracking
+
+### 5. User Directory
+
+- View all registered users
+- Quick access to user profiles
+- Startup information display
+- Direct email contact
+- Latest updates from each user
+
+## Database Schema
+
+### User
+
+```prisma
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  name        String
+  password    String    // Hashed
+  startupName String
+  startupUrl  String?
+  createdAt   DateTime  @default(now())
+  updates     Update[]
+  status      Status?
+  polls       Poll[]
+  votedOptions PollOption[] @relation("UserVotes")
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Update
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```prisma
+model Update {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Status
 
-## Learn More
+```prisma
+model Status {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  status    String
+  updatedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Poll
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```prisma
+model Poll {
+  id        Int      @id @default(autoincrement())
+  question  String
+  userId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  options   PollOption[]
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### PollOption
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```prisma
+model PollOption {
+  id      Int      @id @default(autoincrement())
+  text    String
+  votes   Int      @default(0)
+  pollId  Int
+  poll    Poll     @relation(fields: [pollId], references: [id])
+  voters  User[]   @relation("UserVotes")
+}
+```
