@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const token = request.headers.get("authorization")?.split(" ")[1];
@@ -15,12 +15,10 @@ export async function GET(
       );
     }
 
-    const userId = parseInt(params.userId);
+    const { userId: userIdString } = await params;
+    const userId = parseInt(userIdString);
     if (isNaN(userId)) {
-      return NextResponse.json(
-        { error: "Invalid user ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
     const user = await prismaClient.user.findUnique({
@@ -46,10 +44,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json({ user });

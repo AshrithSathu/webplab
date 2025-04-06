@@ -4,11 +4,10 @@ import { prismaClient } from "@/lib/db";
 
 export async function POST(
   req: Request,
-  context: { params: { pollId: string } }
+  { params }: { params: Promise<{ pollId: string }> }
 ) {
   try {
-    // Get pollId from context
-    const { pollId: pollIdString } = await context.params;
+    const { pollId: pollIdString } = await params;
     const pollId = parseInt(pollIdString);
 
     // Verify authentication
