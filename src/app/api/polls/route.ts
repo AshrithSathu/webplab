@@ -97,6 +97,7 @@ export async function GET(req: Request) {
           options: true,
           user: {
             select: {
+              id: true,
               name: true,
               startupName: true,
             },

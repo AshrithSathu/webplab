@@ -8,6 +8,7 @@ interface Update {
   content: string;
   createdAt: string;
   user: {
+    id: number;
     name: string;
     startupName: string;
   };
@@ -23,6 +24,7 @@ interface Poll {
     votes: number;
   }[];
   user: {
+    id: number;
     name: string;
     startupName: string;
   };
@@ -282,7 +284,10 @@ export default function Dashboard() {
               className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-200 hover:shadow-xl hover:scale-[1.01]"
             >
               <div className="flex items-start justify-between mb-4">
-                <Link href="/profile" className="group flex-col">
+                <Link
+                  href={`/profile/${item.user.id}`}
+                  className="group flex-col"
+                >
                   <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
                     {item.user.name}
                   </h3>

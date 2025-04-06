@@ -27,6 +27,7 @@ export async function GET(request: NextRequest) {
       include: {
         user: {
           select: {
+            id: true,
             name: true,
             startupName: true,
           },
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
       include: {
         user: {
           select: {
+            id: true,
             name: true,
             startupName: true,
           },
